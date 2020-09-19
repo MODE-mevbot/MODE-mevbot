@@ -2,6 +2,7 @@
 
 ;; Copyright © 2015 Steve Purcell
 ;;             2016 Arthur Fayzrakhmanov
+;;             2018 Torstein Sørnes
 
 ;; Author: Steve Purcell <steve@sanityinc.com>
 ;; Keywords: docs
@@ -46,6 +47,7 @@ If nil, use the Hoogle web-site."
           (const :tag "haskell-org" "https://hoogle.haskell.org/?hoogle=%s")
           (const :tag "fp-complete" "https://www.stackage.org/lts/hoogle?q=%s")
           (const :tag "hayoo" "http://hayoo.fh-wedel.de/?query=%s")
+          (const :tag "local" (format "http://localhost:%i/?hoogle=%s" haskell-hoogle-port-number))
           string))
 
 (defcustom haskell-hoogle-server-command (lambda (port)
@@ -103,6 +105,17 @@ is asked to show extra info for the items matching QUERY.."
                         (funcall haskell-hoogle-server-command haskell-hoogle-port-number))))
     )
   )
+
+(defun haskell-hoogle-start-stack-server ()
+  "Start hoogle local server using the local Stack configuration."
+  (interactive)
+  (unless (haskell-hoogle-server-live-p)
+        (set 'haskell-hoogle-server-process
+             (start-process
+              haskell-hoogle-server-process-name
+              (get-buffer-create haskell-hoogle-server-buffer-name)
+              "stack" "hoogle" "--setup" "--" "server" "-p" (number-to-string haskell-hoogle-port-number))))
+   )
 
 (defun haskell-hoogle-server-live-p ()
   "Whether the hoogle server process is live."
